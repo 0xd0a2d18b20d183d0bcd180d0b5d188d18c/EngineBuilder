@@ -8,12 +8,44 @@ import lombok.ToString;
 @Getter
 @Setter
 @Data
-@ToString
 public class Engine {
 
   // user set
   int cylinders;
   int bore; // mm
+
+  @Override
+  public String toString() {
+    return "Engine{" +
+            "cylinders=" + cylinders + "\n" +
+            ", bore=" + bore + "\n" +
+            ", stroke=" + stroke + "\n" +
+            ", rpm=" + rpm + "\n" +
+            ", valvesPerCyl=" + valvesPerCyl + "\n" +
+            ", compressionRatio=" + compressionRatio + "\n" +
+            ", layout=" + layout + "\n" +
+            ", timingType=" + timingType + "\n" +
+            ", blockMaterial=" + blockMaterial + "\n" +
+            ", headMaterial=" + headMaterial + "\n" +
+            ", timingDriveType=" + timingDriveType + "\n" +
+            ", fuelType=" + fuelType + "\n" +
+            ", fuelSystem=" + fuelSystem + "\n" +
+            ", cylinderDisplacement=" + cylinderDisplacement + "\n" +
+            ", displacement=" + displacement + "\n" +
+            ", torque=" + torque + "\n" +
+            ", kwt=" + kwt + "\n" +
+            ", hp=" + hp + "\n" +
+            ", mep=" + mep + "\n" +
+            ", width=" + width + "\n" +
+            ", length=" + length + "\n" +
+            ", weight=" + weight + "\n" +
+            ", centerOfMass=" + centerOfMass + "\n" +
+            ", durabilityHours=" + durabilityHours + "\n" +
+            ", cost=" + cost + "\n" +
+            ", bsfc=" + bsfc + "\n" +
+            '}';
+  }
+
   int stroke; // mm
   int rpm; // peak
   int valvesPerCyl; // 2-5
