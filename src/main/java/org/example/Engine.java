@@ -43,6 +43,8 @@ public class Engine {
   int cost; // $
   int bsfc; // Brake Specific Fuel Consumption | Units: grams of fuel per kilowatt-hour (g/kWh)
 
+  // Enums
+
   enum Layout {
     V, I, Boxer
   }
@@ -69,6 +71,8 @@ public class Engine {
     // diesel
     IDI, INLINE_PUMP, ROTARY_PUMP, UNIT_INJECTOR, HEUI, CRDI
   }
+
+  // Mappers
 
   int getMinBSFC() {
     return switch (this.fuelSystem) {
