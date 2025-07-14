@@ -6,6 +6,41 @@ public class Main {
 
   public static void main(String[] args) {
 
+    System.out.println(args);
+
+    // commands
+
+    // contracts
+
+     // check available contracts
+
+     // apply for contract
+
+    // engines
+
+      // show list of my engines
+
+      // create new engine
+
+      // create new version of existing engine
+
+      // remove engine
+
+    // engineers
+
+      // check available engineers
+
+      // hire new engineer
+
+      // show list current engineers
+
+      // fire engineer by id
+
+    // close turn
+
+  }
+
+  public static Engine createNewEngine() {
     // Set
     Engine e = new Engine();
     e.setCylinders(4);
@@ -40,7 +75,6 @@ public class Main {
     e.setTorque(calcTorque(e.getDisplacement(), e.getMep()));
     e.setKwt(calcPower(e.getTorque(), e.getRpm()));
     e.setHp(calcHorsepower(e.kwt));
-
-    System.out.println(e);
+    return e;
   }
 }
