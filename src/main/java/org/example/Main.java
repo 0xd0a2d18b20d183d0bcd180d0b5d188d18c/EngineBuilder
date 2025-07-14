@@ -1,12 +1,14 @@
 package org.example;
 
+import java.util.Arrays;
+
 import static org.example.EngineStatsCalculator.*;
 
 public class Main {
 
   public static void main(String[] args) {
 
-    System.out.println(args);
+    System.out.println(Arrays.toString(args));
 
     // commands
 
