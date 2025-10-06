@@ -1,5 +1,6 @@
 package lab.gamedev;
 
+import lab.gamedev.contract.Contract;
 import java.util.ArrayList;
 
 public class Game {

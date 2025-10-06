@@ -1,4 +1,4 @@
-package lab.gamedev;
+package lab.gamedev.engine;
 
 import java.util.Random;
 

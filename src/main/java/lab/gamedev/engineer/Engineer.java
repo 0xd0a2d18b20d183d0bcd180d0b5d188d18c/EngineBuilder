@@ -1,4 +1,4 @@
-package lab.gamedev;
+package lab.gamedev.engineer;
 
 import java.util.ArrayList;
 

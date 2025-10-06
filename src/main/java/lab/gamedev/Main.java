@@ -1,8 +1,10 @@
 package lab.gamedev;
 
+import lab.gamedev.engine.Engine;
+import lab.gamedev.engine.EngineStatsGenerator;
 import java.util.Arrays;
 
-import static lab.gamedev.EngineStatsCalculator.*;
+import static lab.gamedev.engine.EngineStatsCalculator.*;
 
 public class Main {
 
@@ -61,7 +63,7 @@ public class Main {
 
     // Calc
     e.setCylinderDisplacement(calcDisplacementPerCyl(e.getBore(), e.getStroke()));
-    e.setDisplacement(calcDisplacement(e.getCylinderDisplacement(), e.cylinders));
+    e.setDisplacement(calcDisplacement(e.getCylinderDisplacement(), e.getCylinders()));
 
     // Generate
     e.setMep(EngineStatsGenerator.generateMEP(e));
@@ -76,7 +78,7 @@ public class Main {
     // Calc
     e.setTorque(calcTorque(e.getDisplacement(), e.getMep()));
     e.setKwt(calcPower(e.getTorque(), e.getRpm()));
-    e.setHp(calcHorsepower(e.kwt));
+    e.setHp(calcHorsepower(e.getKwt()));
     return e;
   }
 }
