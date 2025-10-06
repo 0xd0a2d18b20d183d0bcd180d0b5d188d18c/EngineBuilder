@@ -3,7 +3,6 @@ package org.example;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
@@ -26,8 +25,8 @@ public class Engine {
   FuelSystem fuelSystem;
 
   // calculated precisely
-  double cylinderDisplacement; // Litres
-  double displacement; // Litres
+  int cylinderDisplacement; // cubic mm
+  int displacement; // cubic mm
   int torque; //N*m
   int kwt;
   int hp;

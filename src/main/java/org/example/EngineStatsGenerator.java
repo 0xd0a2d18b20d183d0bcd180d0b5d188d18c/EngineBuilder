@@ -6,17 +6,8 @@ public class EngineStatsGenerator {
 
   // Generate MEP
   public static int generateMEP(Engine engine) {
-    Random r = new Random();
-    double variation = 1.0;
-    double luckRoll = Math.random(); // 0.0 to 1.0
-    if (luckRoll < 0.02) {
-      // Super durable engine
-      variation *= 1.2 + Math.random() * 0.2; // 1.2x to 1.4x
-    } else if (luckRoll > 0.98) {
-      // Terrible lemon engine
-      variation *= 0.7 + Math.random() * 0.2; // 0.7x to 0.9x
-    }
-    double base = 150 * engine.getCompressionRatio() * variation; // kPa
+    double base = 150 * engine.getCompressionRatio(); // kPa
+    base = randomMultiply(base);
 
     // Compression ratio modifier: +3% per full point above 8.5, down if below
     double crModifier = 1.0 + (engine.getCompressionRatio() - 8.5) * 0.03;
@@ -34,22 +25,22 @@ public class EngineStatsGenerator {
     // Fuel system
     double fuelModifier = switch (engine.getFuelSystem()) {
       case CARB -> 0.92;
-      case SPFI -> 0.95;
-      case MPFI -> 1.00;
-      case DI -> 1.05;
       case IDI, INLINE_PUMP, ROTARY_PUMP -> 0.90;
-      case UNIT_INJECTOR, HEUI -> 0.95;
-      case CRDI -> 1.00;
+      case SPFI, UNIT_INJECTOR, HEUI -> 0.95;
+      case MPFI, CRDI -> 1.00;
+      case DI -> 1.05;
     };
 
     // Small impact from timing drive
-    double driveModifier = (engine.getTimingDriveType() == Engine.TimingDriveType.belt) ? 1.01 : 0.99;
+    double driveModifier =
+        (engine.getTimingDriveType() == Engine.TimingDriveType.belt) ? 1.01 : 0.99;
 
     // Cylinder size penalty: very large cylinders have less efficient burn
-    double sizePenalty = (engine.getCylinderDisplacement() > 0.7) ? 0.95 : 1.0;
+    double sizePenalty = (engine.getCylinderDisplacement() > 700000) ? 0.95 : 1.0; //TODO replace static by function
 
     // Combine modifiers
-    double mep = base * crModifier * timingModifier * valveModifier * fuelModifier * driveModifier * sizePenalty;
+    double mep = base * crModifier * timingModifier * valveModifier * fuelModifier * driveModifier
+        * sizePenalty;
 
     mep = randomMultiply(mep);
 
@@ -60,7 +51,8 @@ public class EngineStatsGenerator {
   public static int generateBSFC(Engine engine) {
     Random r = new Random();
     int baseBSFC = r.nextInt(engine.getMinBSFC(), engine.getMaxBSFC());
-    double compressionModifier = 1.0 - 0.02 * (engine.getCenterOfMass() - 8);  // better CR reduces BSFC
+    double compressionModifier =
+        1.0 - 0.02 * (engine.getCenterOfMass() - 8);  // better CR reduces BSFC
     double timingModifier = switch (engine.getTimingType()) {
       case OHV -> 1.05;
       case OHC -> 1.02;
@@ -101,13 +93,13 @@ public class EngineStatsGenerator {
 
     // Compression ratio penalty (above 10 → reduce)
     double crPenalty = (e.getCompressionRatio() > 10.0)
-            ? 1.0 - ((e.getCompressionRatio() - 10.0) * 0.03)
-            : 1.0;
+        ? 1.0 - ((e.getCompressionRatio() - 10.0) * 0.03)
+        : 1.0;
 
     // High RPM reduces life — above 6000 starts to hurt
     double rpmPenalty = (e.getRpm() > 6000)
-            ? 1.0 - ((e.getRpm() - 6000) / 1000.0) * 0.05
-            : 1.0;
+        ? 1.0 - ((e.getRpm() - 6000) / 1000.0) * 0.05
+        : 1.0;
 
     // Clamp penalties to not go negative
     crPenalty = Math.max(0.7, crPenalty);
@@ -132,7 +124,7 @@ public class EngineStatsGenerator {
     int baseLength = (int) (e.getStroke() * cylindersPerBank * 1.1);
 
     // Add extra space for manifolds, accessories
-    int extraLength = 100 + (int)(Math.random() * 50); // 100–150 mm
+    int extraLength = 100 + (int) (Math.random() * 50); // 100–150 mm
 
     return baseLength + extraLength;
   }
@@ -147,17 +139,22 @@ public class EngineStatsGenerator {
     };
 
     // Add extra space for manifolds, accessories
-    int extraWidth = 80 + (int)(Math.random() * 50);   // 80–130 mm
+    int extraWidth = 80 + (int) (Math.random() * 50);   // 80–130 mm
 
     return baseWidth + extraWidth;
   }
 
   // Generate weight
   public static int generateWeight(Engine e) {
-    double baseWeight = e.getDisplacement() * 200; // kg per liter
+    int kgPerLiter = 60;
+    double baseWeight = ((double) e.getDisplacement() / 1000 * kgPerLiter) / 1000;
     // Material modifier
-    if (e.getBlockMaterial() == Engine.Material.CI) baseWeight *= 1.15;
-    if (e.getHeadMaterial() == Engine.Material.CI) baseWeight *= 1.10;
+    if (e.getBlockMaterial() == Engine.Material.CI) {
+      baseWeight *= 1.15;
+    }
+    if (e.getHeadMaterial() == Engine.Material.CI) {
+      baseWeight *= 1.10;
+    }
 
     // Layout modifier
     baseWeight *= switch (e.getLayout()) {
@@ -181,13 +178,15 @@ public class EngineStatsGenerator {
 
   // Generate Cost
   public static int generateCost(Engine engine) {
-    double base = 1000;
+    double base = 0;
+    int pricePerLiter = 1500;
+    int pricePerCyl = 250;
 
-    // Displacement factor (bigger = more material)
-    base += engine.getDisplacement() * 1500; // e.g., 2.0L → +$3000
+    // Displacement factor
+    base += (double) engine.getDisplacement() / 1000000 * pricePerLiter; // e.g., 2.0L → +$3000
 
-    // Valves per cylinder (more valves = more complex head)
-    base += (engine.getValvesPerCyl() - 2) * 300 * engine.getCylinders();
+    // Valves per cylinder
+    base += pricePerCyl * engine.getCylinders();
 
     // Timing type
     base += switch (engine.getTimingType()) {
@@ -199,30 +198,32 @@ public class EngineStatsGenerator {
     // Fuel system complexity
     base += switch (engine.getFuelSystem()) {
       case CARB -> 100;
-      case SPFI -> 300;
+      case SPFI, IDI, INLINE_PUMP, ROTARY_PUMP -> 300;
       case MPFI -> 500;
       case DI -> 800;
-      case IDI, INLINE_PUMP, ROTARY_PUMP -> 300;
       case UNIT_INJECTOR, HEUI -> 600;
       case CRDI -> 1000;
     };
 
     // Material differences
-    if (engine.getBlockMaterial() == Engine.Material.AL) base += 500;
-    if (engine.getHeadMaterial() == Engine.Material.AL) base += 300;
+    if (engine.getBlockMaterial() == Engine.Material.AL) {
+      base += 500;
+    }
+    if (engine.getHeadMaterial() == Engine.Material.AL) {
+      base += 300;
+    }
 
     // Timing drive (belt slightly cheaper)
     base += (engine.getTimingDriveType() == Engine.TimingDriveType.chain) ? 150 : 50;
 
     // Adjust for RPM — high-revving engines need tighter tolerances
-    if (engine.getRpm() > 6000) base += (engine.getRpm() - 6000) * 0.5;
+    if (engine.getRpm() > 6000) {
+      base += (engine.getRpm() - 6000) * 0.5;
+    }
 
     // Add random quality/luck modifier (±10%)
     double qualityFactor = 0.90 + Math.random() * 0.20;
     base *= qualityFactor;
-
-    // Clamp to allowed range
-    base = Math.max(1000, Math.min(base, 10000));
 
     return (int) base;
   }
@@ -245,11 +246,15 @@ public class EngineStatsGenerator {
 
     // Materials: CI is heavier low → lowers CoM
     double weightBias = 0.0;
-    if (e.getBlockMaterial() == Engine.Material.CI) weightBias -= 20;
-    if (e.getHeadMaterial() == Engine.Material.CI) weightBias -= 10;
+    if (e.getBlockMaterial() == Engine.Material.CI) {
+      weightBias -= 20;
+    }
+    if (e.getHeadMaterial() == Engine.Material.CI) {
+      weightBias -= 10;
+    }
 
     // Final center of mass is roughly at 40–50% of height
-    double baseCoM = height * 0.45;
+    double baseCoM = height * 0.4;
 
     // Apply material bias
     baseCoM += weightBias;
@@ -257,28 +262,25 @@ public class EngineStatsGenerator {
     // Add small random ±5%
     baseCoM *= (0.95 + Math.random() * 0.10);
 
-    // Clamp reasonable range
-    baseCoM = Math.max(250, Math.min(baseCoM, 700));
-
     return (int) baseCoM;
   }
 
+  // Add rare extremes
   private static double randomMultiply(double result) {
-    // Add rare extremes
-    double luckRoll = Math.random(); // 0.0 to 1.0
-    if (luckRoll < 0.2) {                   // Super durable engine
-      result *= 1.2 + Math.random() * 0.2; // 1.2x to 1.4x
-    }
-    if (luckRoll < 0.5 && luckRoll > 0.2) { // Good durable engine
-      result *= 1.0 + Math.random() * 0.2;
-    }
-    if (luckRoll > 0.5 && luckRoll < 0.8) { // Bad engine
-      result *= 0.8 + Math.random() * 0.2;
-    }
-    if (luckRoll > 0.8) {                   // Terrible lemon engine
-      result *= 0.6 + Math.random() * 0.2;
-    }
-    return result;
-  }
+    /*
+     // 50% -> +_ 10%
+     // 30% -> +_ 20%
+     // 20% -> +_ 40%
+    */
 
+    double luckRoll = Math.random(); // 0.0 to 1.0
+
+    if (luckRoll > 0.5) {
+      return result * (0.9 + Math.random() * 0.2);
+    }
+    if (luckRoll > 0.2) {
+      return result * (0.8 + Math.random() * 0.4);
+    }
+    return result * (0.6 + Math.random() * 0.8);
+  }
 }
