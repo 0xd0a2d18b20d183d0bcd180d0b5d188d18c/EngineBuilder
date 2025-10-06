@@ -14,21 +14,22 @@ public class Contract {
   String description;
   ArrayList<Requirements> requirements;
 
+  @ToString
   static class Requirements {
     Type type;
     int value;
     Comparison comparison;
 
     enum Type {
-      cost, length, width, weight, torque, power, displacement, layout;
+      cost, length, width, weight, torque, power, displacement, layout
     }
 
     enum Comparison {
-      more, less, equals;
+      more, less, equals
     }
   }
 
-  public Contract generateRandomContract() {
+  public static Contract generateRandomContract() {
     Random rand = new Random();
     Contract contract = new Contract();
     contract.id = rand.nextInt(10000);
@@ -73,5 +74,4 @@ public class Contract {
 
     return contract;
   }
-
 }
