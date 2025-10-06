@@ -1,4 +1,4 @@
-package org.example;
+package lab.gamedev;
 
 import lombok.ToString;
 

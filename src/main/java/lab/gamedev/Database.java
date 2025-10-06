@@ -1,4 +1,4 @@
-package org.example;
+package lab.gamedev;
 
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;

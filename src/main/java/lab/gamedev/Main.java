@@ -1,8 +1,8 @@
-package org.example;
+package lab.gamedev;
 
 import java.util.Arrays;
 
-import static org.example.EngineStatsCalculator.*;
+import static lab.gamedev.EngineStatsCalculator.*;
 
 public class Main {
 
